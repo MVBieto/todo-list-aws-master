@@ -12,7 +12,7 @@ pipeline {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     bat '''
                     set PYTHONPATH=%WORKSPACE%
-                    coverage run --branch --source=src --omit=src\\__init__.py,src\\requirements.py -m pytest --junitxml=result-unit.xml test\\unit
+                    coverage run --branch --source=src --omit=src\\__init__.py -m pytest --junitxml=result-unit.xml test\\unit
                     coverage xml
                     '''
                     junit 'result*.xml'
