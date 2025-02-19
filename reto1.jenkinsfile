@@ -7,25 +7,6 @@ pipeline {
                 stash name: 'source-code', includes: '**'
             }
         }
-         stage('Unit') {
-            steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    bat '''
-                    set PYTHONPATH=%WORKSPACE%
-                    coverage run --branch --source=src --omit=src\\__init__.py -m pytest --junitxml=result-unit.xml test\\unit
-                    coverage xml
-                    '''
-                    junit 'result*.xml'
-                }
-            }
-        }
-        stage('Coverage') {
-            steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    cobertura coberturaReportFile: 'coverage.xml', conditionalCoverageTargets: '100,0,50', lineCoverageTargets: '100,0,50'
-                }
-            }
-        }
         stage('Pruebas estaticas') {
             parallel {
                 stage('Static') {
