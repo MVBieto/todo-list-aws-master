@@ -1,5 +1,10 @@
 pipeline {
     agent any
+    environment {
+        AWS_REGION = "us-east-1"
+        STACK_NAME = "todo-list-aws"
+        STAGE = "staging"
+    }
     stages {
         stage('GetCode') {
             steps {
@@ -33,21 +38,27 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
+        stage('Build Application') {
             steps {
                 script {
                     sh '''
-                    sam deploy \
-                        --stack-name todo-list-aws \
-                        --region us-east-1 \
-                        --resolve-s3 \
-                        --parameter-overrides Stage=staging \
-                        --confirm-changeset \
-                        --capabilities CAPABILITY_IAM \
-                        --no-disable-rollback \
-                        --config-file samconfig.toml \
-                        --config-env default \
-                        --no-fail-on-empty-changeset
+                    cd todo-list-aws-master
+                    sam build
+                    '''
+                }
+            }
+        }
+        stage('Deploy to AWS') {
+            steps {
+                script {
+                    sh '''
+                    echo "Deploying application to AWS..."
+                    cd app
+                    sam deploy --stack-name $STACK_NAME \
+                               --region $AWS_REGION \
+                               --parameter-overrides Stage=$STAGE \
+                               --capabilities CAPABILITY_IAM \
+                               --confirm-changeset --no-fail-on-empty-changeset
                     '''
                 }
             }
