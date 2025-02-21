@@ -40,6 +40,7 @@ pipeline {
                     sam deploy \
                         --stack-name todo-list-aws \
                         --region us-east-1 \
+                        --resolve-s3 \
                         --parameter-overrides Stage=staging \
                         --confirm-changeset \
                         --capabilities CAPABILITY_IAM \
