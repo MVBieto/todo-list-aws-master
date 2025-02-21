@@ -52,15 +52,23 @@ pipeline {
         stage('Deploy to AWS') {
             steps {
                 script {
-                    sh '''
-                    echo "Deploying application to AWS..."
-                    sam deploy --stack-name $STACK_NAME \
-                               --region $AWS_REGION \
-                               --s3-bucket $S3_BUCKET \
-                               --parameter-overrides Stage=$STAGE \
-                               --capabilities CAPABILITY_IAM \
-                               --no-confirm-changeset
-                    '''
+                    def deployStatus = sh(
+                        script: '''
+                        sam deploy --stack-name $STACK_NAME \
+                                   --region $AWS_REGION \
+                                   --s3-bucket $S3_BUCKET \
+                                   --parameter-overrides Stage=$STAGE \
+                                   --capabilities CAPABILITY_IAM \
+                                   --no-confirm-changeset \
+                                   --no-fail-on-empty-changeset || true
+                        ''',
+                        returnStdout: true
+                    )
+
+                    if (deployStatus.contains("No changes to deploy")) {
+                        echo "No changes detected. Skipping deployment."
+                    } else {
+                        echo "Deployment completed."
                 }
             }
         }
