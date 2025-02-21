@@ -68,47 +68,39 @@ pipeline {
         stage('Etapa Rest') {
             steps {
                 script {
-                    def response = sh(script: 'curl -X GET https://h1898ka2e9.execute-api.us-east-1.amazonaws.com/Prod/todos', returnStdout: true).trim()
+                    def response = sh(script: '''
+                        curl -s -X GET https://h1898ka2e9.execute-api.us-east-1.amazonaws.com/Prod/todos
+                    ''', returnStdout: true).trim()
+
                     echo "Response: ${response}"
 
-                    try {
-                        // Parse JSON response (Groovy built-in parsing)
-                        def json = new groovy.json.JsonSlurperClassic().parseText(response)
+                    // Validate JSON structure using jq
+                    def validationScript = """
+                        echo '${response}' | jq -e '
+                            if type == "array" and length > 0 then
+                                .[0] | 
+                                has("checked") and 
+                                has("createdAt") and 
+                                has("text") and 
+                                has("id") and 
+                                has("updatedAt") and 
+                                (.checked | type == "boolean") and 
+                                (.createdAt | test("^[0-9]+\\\\.[0-9]+$")) and 
+                                (.text | type == "string") and 
+                                (.id | type == "string") and 
+                                (.updatedAt | test("^[0-9]+\\\\.[0-9]+$"))
+                            else 
+                                false 
+                            end
+                        '
+                    """
 
-                        // Ensure response is a list
-                        if (!(json instanceof List)) {
-                            error "Response is not a list!"
-                        }
+                    def isValid = sh(script: validationScript, returnStatus: true) == 0
 
-                        // Ensure the list is not empty
-                        if (json.isEmpty()) {
-                            error "Response list is empty!"
-                        }
-
-                        // Validate the first item in the list
-                        def item = json[0]
-                        if (!(item instanceof Map)) {
-                            error "First item is not a JSON object!"
-                        }
-
-                        // Required fields and their expected types
-                        def requiredFields = ['checked', 'createdAt', 'text', 'id', 'updatedAt']
-
-                        requiredFields.each { field ->
-                            if (!item.containsKey(field)) {
-                                error "Missing field: ${field}"
-                            }
-                        }
-
-                        // Check expected values
-                        if (item.text != "Learn Serverless") {
-                            error "Unexpected text value: ${item.text}"
-                        }
-
-                        echo "✅ JSON Validation Passed!"
-                
-                    } catch (Exception e) {
-                        error "JSON Validation Failed: ${e.message}"
+                    if (!isValid) {
+                        error("Response validation failed! JSON format or required fields are incorrect.")
+                    } else {
+                        echo "Response validation passed! ✅"
                     }
                 }
             }
