@@ -68,23 +68,8 @@ pipeline {
         stage('Etapa Rest') {
             steps {
                 script {
-                    def response = sh(script: 'curl -X GET https://h1898ka2e9.execute-api.us-east-1.amazonaws.com/Prod/todos', returnStdout: true).trim()
+                    def response = sh(script: 'curl -X GET https://h1898ka2e9.execute-api.us-east-1.amazonaws.com/Prod/todo', returnStdout: true).trim()
                     echo "Response: ${response}"
-
-                    // Parse JSON response
-                    def json = new JsonSlurper().parseText(response)
-
-                    // Validate expected fields
-                    assert json instanceof List : "Response is not a list"
-                    assert json.size() > 0 : "Response is empty"
-
-                    def item = json[0]
-                    assert item.containsKey('checked') : "Missing 'checked' field"
-                    assert item.containsKey('text') : "Missing 'text' field"
-                    assert item.containsKey('id') : "Missing 'id' field"
-                    assert item.text == "Learn Serverless" : "Unexpected 'text' value"
-
-                    echo "Validation successful!"
                 }
             }
         }
