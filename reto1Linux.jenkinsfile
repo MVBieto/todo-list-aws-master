@@ -69,6 +69,7 @@ pipeline {
                         echo "No changes detected. Skipping deployment."
                     } else {
                         echo "Deployment completed."
+                    }
                 }
             }
         }
