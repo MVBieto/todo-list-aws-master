@@ -42,7 +42,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    cd todo-list-aws-master
+                    ls
                     sam build
                     '''
                 }
@@ -53,7 +53,6 @@ pipeline {
                 script {
                     sh '''
                     echo "Deploying application to AWS..."
-                    cd app
                     sam deploy --stack-name $STACK_NAME \
                                --region $AWS_REGION \
                                --parameter-overrides Stage=$STAGE \
