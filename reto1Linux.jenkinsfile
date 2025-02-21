@@ -68,40 +68,13 @@ pipeline {
         stage('Etapa Rest') {
             steps {
                 script {
-                    def response = sh(script: '''
-                        curl -s -X GET https://h1898ka2e9.execute-api.us-east-1.amazonaws.com/Prod/todos
-                    ''', returnStdout: true).trim()
-
+                    def response = sh(script: 'curl -X GET https://h1898ka2e9.execute-api.us-east-1.amazonaws.com/Prod/todos', returnStdout: true).trim()
                     echo "Response: ${response}"
-
-                    // Validate JSON structure using jq
-                    def validationScript = """
-                        echo '${response}' | jq -e '
-                            if type == "array" and length > 0 then
-                                .[0] | 
-                                has("checked") and 
-                                has("createdAt") and 
-                                has("text") and 
-                                has("id") and 
-                                has("updatedAt") and 
-                                (.checked | type == "boolean") and 
-                                (.createdAt | test("^[0-9]+\\\\.[0-9]+$")) and 
-                                (.text | type == "string") and 
-                                (.id | type == "string") and 
-                                (.updatedAt | test("^[0-9]+\\\\.[0-9]+$"))
-                            else 
-                                false 
-                            end
-                        '
-                    """
-
-                    def isValid = sh(script: validationScript, returnStatus: true) == 0
-
-                    if (!isValid) {
-                        error("Response validation failed! JSON format or required fields are incorrect.")
-                    } else {
-                        echo "Response validation passed! ✅"
-                    }
+                    sh '''
+                        ls
+                        pytest --junitxml=result-rest.xml test/integration
+                    '''              
+                    junit 'result*.xml'
                 }
             }
         }
