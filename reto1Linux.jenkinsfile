@@ -33,5 +33,23 @@ pipeline {
                 }
             }
         }
+        stage('Deploy') {
+            steps {
+                script {
+                    sh '''
+                    sam deploy \
+                        --stack-name todo-list-aws \
+                        --region us-east-1 \
+                        --parameter-overrides Stage=staging \
+                        --confirm-changeset \
+                        --capabilities CAPABILITY_IAM \
+                        --no-disable-rollback \
+                        --config-file samconfig.toml \
+                        --config-env default \
+                        --no-fail-on-empty-changeset
+                    '''
+                }
+            }
+        }
     }
 }
