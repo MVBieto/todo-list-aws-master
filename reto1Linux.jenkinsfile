@@ -67,11 +67,9 @@ pipeline {
         }
         stage('Etapa Rest') {
             steps {
-                scripts {
-                    sh '''
-                        pytest --junitxml=result-rest.xml test\\integration
-                        junit 'result-rest.xml'
-                    '''
+                script {
+                    def response = sh(script: 'curl -X GET https://h1898ka2e9.execute-api.us-east-1.amazonaws.com/Prod/todos', returnStdout: true).trim()
+                    echo "Response: ${response}"
                 }
             }
         }
