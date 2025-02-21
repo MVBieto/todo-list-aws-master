@@ -64,5 +64,15 @@ pipeline {
                 }
             }
         }
+        stage('Etapa Rest') {
+            steps {
+                scripts {
+                    sh '''
+                        pytest --junitxml=result-rest.xml test\\integration
+                        junit 'result-rest.xml'
+                    '''
+                }
+            }
+        }
     }
 }
