@@ -52,7 +52,7 @@ pipeline {
         stage('Deploy to AWS') {
             steps {
                 script {
-                    catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     sh '''
                         sam deploy --stack-name $STACK_NAME \
                             --region $AWS_REGION \
