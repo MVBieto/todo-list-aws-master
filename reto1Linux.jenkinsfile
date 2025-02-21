@@ -52,15 +52,14 @@ pipeline {
         stage('Deploy to AWS') {
             steps {
                 script {
-                    def deployOutput = sh(script: '''
-                        aws cloudformation deploy --stack-name todo-list-aws --template-file cloudformation.yaml --capabilities CAPABILITY_NAMED_IAM
-                    ''', returnStdout: true).trim()
-
-                    if (deployOutput.contains("No changes to deploy")) {
-                    echo "No changes detected, skipping deployment."
-                    } else {
-                    echo "Deployment successful."
-                    }
+                    sh '''
+                        sam deploy --stack-name $STACK_NAME \
+                            --region $AWS_REGION \
+                            --s3-bucket $S3_BUCKET \
+                            --parameter-overrides Stage=$STAGE \
+                            --capabilities CAPABILITY_IAM \
+                            --no-confirm-changeset \
+                    '''
                 }
             }
         }
