@@ -52,21 +52,15 @@ pipeline {
         stage('Deploy to AWS') {
             steps {
                 script {
-                    def deployStatus = sh(
-                        script: "sam deploy --stack-name $STACK_NAME \
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh '''
+                        sam deploy --stack-name $STACK_NAME \
                             --region $AWS_REGION \
                             --s3-bucket $S3_BUCKET \
                             --parameter-overrides Stage=$STAGE \
                             --capabilities CAPABILITY_IAM \
-                            --no-confirm-changeset",
-                        returnStatus: true
-                    )
-                    
-                    if (deployStatus != 0) {
-                        echo "Deployment failed with status: ${deployStatus}"
-                        error("Deployment failed!")
-                    } else {
-                        echo "Deployment completed successfully or no changes detected."
+                            --no-confirm-changeset
+                    '''
                     }
                 }
             }
