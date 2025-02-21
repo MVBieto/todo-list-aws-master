@@ -52,15 +52,15 @@ pipeline {
         stage('Deploy to AWS') {
             steps {
                 script {
-                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    sh '''
-                        sam deploy --stack-name $STACK_NAME \
-                            --region $AWS_REGION \
-                            --s3-bucket $S3_BUCKET \
-                            --parameter-overrides Stage=$STAGE \
-                            --capabilities CAPABILITY_IAM \
-                            --no-confirm-changeset
-                    '''
+                    catchError{
+                            sh '''
+                                sam deploy --stack-name $STACK_NAME \
+                                    --region $AWS_REGION \
+                                    --s3-bucket $S3_BUCKET \
+                                    --parameter-overrides Stage=$STAGE \
+                                    --capabilities CAPABILITY_IAM \
+                                    --no-confirm-changeset
+                            '''
                     }
                 }
             }
