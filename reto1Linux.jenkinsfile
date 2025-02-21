@@ -59,7 +59,7 @@ pipeline {
                                --s3-bucket $S3_BUCKET \
                                --parameter-overrides Stage=$STAGE \
                                --capabilities CAPABILITY_IAM \
-                               --confirm-changeset --no-fail-on-empty-changeset
+                               --no-confirm-changeset
                     '''
                 }
             }
