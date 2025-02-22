@@ -39,7 +39,7 @@ pipeline {
                 }
             }
         }
-        stage('Etapa Rest') {
+        stage('Smoke Test') {
             steps {
                 script {
                     def response = sh(script: 'curl -X GET https://h1898ka2e9.execute-api.us-east-1.amazonaws.com/Prod/todos', returnStdout: true).trim()
@@ -47,7 +47,7 @@ pipeline {
                     sh '''
                         ls
                         set PYTHONPATH=%WORKSPACE%
-                        pytest --junitxml=result-rest.xml test/integration
+                        pytest --junitxml=result-rest.xml test/integration/smoke_api_test.py
                     '''              
                     junit 'result*.xml'
                 }
