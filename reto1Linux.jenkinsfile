@@ -79,5 +79,20 @@ pipeline {
                 }
             }
         }
+        stage('Promote') {
+            steps {
+                script {
+                        sh '''
+                            git config --global user.email "miquelvidalbieto@gmail.com"
+                            git config --global user.name "MVBieto"
+                            git checkout master
+                            git merge --no-ff develop
+                            git push https://github.com/MVBieto/todo-list-aws-master.git master
+                        '''
+                }
+            }
+        }
+
+        
     }
 }
