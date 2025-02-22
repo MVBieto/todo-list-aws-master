@@ -36,7 +36,7 @@ pipeline {
         stage('Etapa Rest') {
             steps {
                 script {
-                    def response = sh(script: 'curl -X GET https://h1898ka2e9.execute-api.us-east-1.amazonaws.com/Prod/todos', returnStdout: true).trim()
+                    def response = bat(script: 'curl -X GET https://h1898ka2e9.execute-api.us-east-1.amazonaws.com/Prod/todos', returnStdout: true).trim()
                     echo "Response: ${response}"
                     bat'''
                     set PYTHONPATH=%WORKSPACE%
