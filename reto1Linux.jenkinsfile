@@ -72,6 +72,7 @@ pipeline {
                     echo "Response: ${response}"
                     sh '''
                         ls
+                        set PYTHONPATH=%WORKSPACE%
                         pytest --junitxml=result-rest.xml test/integration
                     '''              
                     junit 'result*.xml'
