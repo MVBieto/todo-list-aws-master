@@ -7,8 +7,8 @@ pipeline {
         S3_BUCKET = "casopractico14"
     }
     stages {
-        agent any
         stage('GetCode') {
+            agent any
             steps {
                 git branch: 'master', url: 'https://github.com/MVBieto/todo-list-aws-master.git'
                 stash name: 'source-code', includes: '**'
