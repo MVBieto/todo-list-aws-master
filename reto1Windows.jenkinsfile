@@ -41,7 +41,7 @@ pipeline {
                     bat'''
                     set PYTHONPATH=%WORKSPACE%
                     dir
-                    pytest --junitxml=result-rest.xml test/integration
+                    pytest --junitxml=result-rest.xml test\integration
                     '''
                     
                 }
