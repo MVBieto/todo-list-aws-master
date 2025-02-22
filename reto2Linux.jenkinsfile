@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+    environment {
+        AWS_REGION = "us-east-1"
+        STACK_NAME = "todo-list-aws"
+        STAGE = "production"
+        S3_BUCKET = "casopractico14"
+    }
+    stages {
+        stage('GetCode') {
+            steps {
+                git branch: 'master', url: 'https://github.com/MVBieto/todo-list-aws-master.git'
+                stash name: 'source-code', includes: '**'
+            }
+        }
+        stage('Build Application') {
+            steps {
+                script {
+                    sh '''
+                    ls
+                    sam build
+                    '''
+                }
+            }
+        }
+        stage('Deploy to AWS') {
+            steps {
+                script {
+                    catchError(buildResult: 'SUCCESS') {
+                            sh '''
+                                sam deploy --stack-name $STACK_NAME \
+                                    --region $AWS_REGION \
+                                    --s3-bucket $S3_BUCKET \
+                                    --parameter-overrides Stage=$STAGE \
+                                    --capabilities CAPABILITY_IAM \
+                                    --no-confirm-changeset
+                            '''
+                    }
+                }
+            }
+        }
+        stage('Etapa Rest') {
+            steps {
+                script {
+                    def response = sh(script: 'curl -X GET https://h1898ka2e9.execute-api.us-east-1.amazonaws.com/Prod/todos', returnStdout: true).trim()
+                    echo "Response: ${response}"
+                    sh '''
+                        ls
+                        set PYTHONPATH=%WORKSPACE%
+                        pytest --junitxml=result-rest.xml test/integration
+                    '''              
+                    junit 'result*.xml'
+                }
+            }
+        }
+    }
+}
