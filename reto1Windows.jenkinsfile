@@ -38,10 +38,10 @@ pipeline {
                 script {
                     def response = bat(script: 'curl -X GET https://h1898ka2e9.execute-api.us-east-1.amazonaws.com/Prod/todos', returnStdout: true).trim()
                     echo "Response: ${response}"
-                    bat'''
+                    bat '''
                     set PYTHONPATH=%WORKSPACE%
                     dir
-                    pytest --junitxml=result-rest.xml test\integration
+                    pytest --junitxml=result-rest.xml test//integration
                     '''
                     
                 }
